@@ -1,0 +1,63 @@
+# Zig build artifacts
+zig-cache/
+zig-out/
+.zig-cache/
+
+# Build directories
+build/
+build-*/
+out/
+
+# GLPK library files (if building locally)
+*.a
+*.so
+*.so.*
+*.dylib
+*.dll
+*.lib
+
+# Object files
+*.o
+*.obj
+
+# Editor and IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Claude.ai
+.claude/
+CLAUDE.md
+
+# Debug files
+*.pdb
+core
+vgcore.*
+callgrind.out.*
+
+# Test coverage
+*.gcda
+*.gcno
+*.gcov
+coverage/
+lcov.info
+
+# Documentation build
+docs/html/
+docs/latex/
+*.doxygen
+
+# Temporary files
+*.tmp
+*.temp
+*.log
+tmp/
+temp/
+
+# Package manager
+.zon/
+deps/
