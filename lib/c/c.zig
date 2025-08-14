@@ -9,8 +9,9 @@ pub const utils = .{
 // ╔══════════════════════════════════════ TEST ══════════════════════════════════════╗
 
 test {
-    // utils
-    _ = @import("./utils/glpk/glpk.test.zig");
+    // utils - import both unit tests (inline) and integration tests (external)
+    _ = @import("./utils/glpk/glpk.zig");       // Unit tests
+    _ = @import("./utils/glpk/glpk.test.zig");  // Integration and stress tests
 }
 
 // ╚══════════════════════════════════════════════════════════════════════════════════╝

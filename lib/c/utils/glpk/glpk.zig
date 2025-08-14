@@ -475,3 +475,344 @@
     }
 
 // ╚══════════════════════════════════════════════════════════════════════════════════════╝
+
+// ╔══════════════════════════════════════ TEST ══════════════════════════════════════╗
+
+    const testing = std.testing;
+    
+    // ┌──────────────────────────── Test Constants ────────────────────────────┐
+    
+        // Expected GLPK version constants
+        const EXPECTED_MAJOR_VERSION = 5;
+        const EXPECTED_MINOR_VERSION = 0;
+        const EXPECTED_VERSION_STRING = "5.0";
+        
+        // Test problem parameters
+        const TEST_PROBLEM_NAME = "test_problem";
+        const TEST_ROW_NAME = "constraint1";
+        const TEST_COL_NAME = "variable1";
+        
+        // Numerical tolerance for floating point comparisons
+        const EPSILON = 1e-6;
+    
+    // └──────────────────────────────────────────────────────────────────────────────┘
+    
+    // ┌──────────────────────────── Library Linkage Tests ────────────────────────────┐
+    
+        test "unit: GLPKLibrary: verify library is properly linked" {
+            // Test that we can call a basic GLPK function without crashing
+            // Creating and immediately deleting a problem tests linkage
+            const prob = createProblem();
+            try testing.expect(prob != null);
+            deleteProblem(prob);
+        }
+        
+        test "unit: GLPKVersion: library version string matches expected format" {
+            const version = getVersion();
+            try testing.expect(version.len > 0);
+            
+            // Version should contain a dot separator
+            const dot_index = std.mem.indexOf(u8, version, ".");
+            try testing.expect(dot_index != null);
+        }
+    
+    // └──────────────────────────────────────────────────────────────────────────────┘
+    
+    // ┌──────────────────────────── Version Function Tests ────────────────────────────┐
+    
+        test "unit: VersionUtils: getVersion returns expected version string" {
+            const version = getVersion();
+            try testing.expectEqualStrings(EXPECTED_VERSION_STRING, version);
+        }
+        
+        test "unit: VersionUtils: getMajorVersion returns correct major version" {
+            const major = getMajorVersion();
+            try testing.expectEqual(EXPECTED_MAJOR_VERSION, major);
+        }
+        
+        test "unit: VersionUtils: getMinorVersion returns correct minor version" {
+            const minor = getMinorVersion();
+            try testing.expectEqual(EXPECTED_MINOR_VERSION, minor);
+        }
+        
+        test "unit: VersionUtils: version functions handle edge cases" {
+            // These should not crash even if version format changes
+            const version = getVersion();
+            const major = getMajorVersion();
+            const minor = getMinorVersion();
+            
+            // Basic sanity checks
+            try testing.expect(version.len > 0);
+            try testing.expect(major >= 0);
+            try testing.expect(minor >= 0);
+        }
+    
+    // └──────────────────────────────────────────────────────────────────────────────┘
+    
+    // ┌──────────────────────────── Problem Management Tests ────────────────────────────┐
+    
+        test "unit: ProblemManagement: create and delete problem" {
+            const prob = createProblem();
+            try testing.expect(prob != null);
+            
+            // Should be able to delete without issues
+            deleteProblem(prob);
+        }
+        
+        test "unit: ProblemManagement: set problem name" {
+            const prob = createProblem();
+            defer deleteProblem(prob);
+            
+            // Setting problem name should not crash
+            setProblemName(prob, TEST_PROBLEM_NAME);
+            
+            // No direct way to get problem name in basic API,
+            // but we can verify it doesn't crash
+        }
+        
+        test "unit: ProblemManagement: set and get objective direction" {
+            const prob = createProblem();
+            defer deleteProblem(prob);
+            
+            // Test minimize
+            setObjectiveDirection(prob, GLP_MIN);
+            try testing.expectEqual(GLP_MIN, getObjectiveDirection(prob));
+            
+            // Test maximize
+            setObjectiveDirection(prob, GLP_MAX);
+            try testing.expectEqual(GLP_MAX, getObjectiveDirection(prob));
+        }
+        
+        test "unit: ProblemManagement: multiple problems can coexist" {
+            const prob1 = createProblem();
+            const prob2 = createProblem();
+            const prob3 = createProblem();
+            
+            try testing.expect(prob1 != null);
+            try testing.expect(prob2 != null);
+            try testing.expect(prob3 != null);
+            try testing.expect(prob1 != prob2);
+            try testing.expect(prob2 != prob3);
+            try testing.expect(prob1 != prob3);
+            
+            deleteProblem(prob1);
+            deleteProblem(prob2);
+            deleteProblem(prob3);
+        }
+    
+    // └──────────────────────────────────────────────────────────────────────────────┘
+    
+    // ┌──────────────────────────── Row Management Tests ────────────────────────────┐
+    
+        test "unit: RowManagement: add rows to problem" {
+            const prob = createProblem();
+            defer deleteProblem(prob);
+            
+            // Initially should have 0 rows
+            try testing.expectEqual(@as(c_int, 0), getNumRows(prob));
+            
+            // Add 3 rows
+            const row_index = addRows(prob, 3);
+            try testing.expect(row_index > 0);
+            try testing.expectEqual(@as(c_int, 3), getNumRows(prob));
+            
+            // Add 2 more rows
+            _ = addRows(prob, 2);
+            try testing.expectEqual(@as(c_int, 5), getNumRows(prob));
+        }
+        
+        test "unit: RowManagement: set row properties" {
+            const prob = createProblem();
+            defer deleteProblem(prob);
+            
+            const row_idx = addRows(prob, 1);
+            
+            // Set row name (should not crash)
+            setRowName(prob, row_idx, TEST_ROW_NAME);
+            
+            // Set different types of bounds
+            setRowBounds(prob, row_idx, GLP_FX, 10.0, 10.0);  // Fixed
+            setRowBounds(prob, row_idx, GLP_LO, 5.0, 0.0);    // Lower bound
+            setRowBounds(prob, row_idx, GLP_UP, 0.0, 15.0);   // Upper bound
+            setRowBounds(prob, row_idx, GLP_DB, 5.0, 15.0);   // Double bound
+            setRowBounds(prob, row_idx, GLP_FR, 0.0, 0.0);    // Free
+        }
+    
+    // └──────────────────────────────────────────────────────────────────────────────┘
+    
+    // ┌──────────────────────────── Column Management Tests ────────────────────────────┐
+    
+        test "unit: ColumnManagement: add columns to problem" {
+            const prob = createProblem();
+            defer deleteProblem(prob);
+            
+            // Initially should have 0 columns
+            try testing.expectEqual(@as(c_int, 0), getNumColumns(prob));
+            
+            // Add 4 columns
+            const col_index = addColumns(prob, 4);
+            try testing.expect(col_index > 0);
+            try testing.expectEqual(@as(c_int, 4), getNumColumns(prob));
+            
+            // Add 3 more columns
+            _ = addColumns(prob, 3);
+            try testing.expectEqual(@as(c_int, 7), getNumColumns(prob));
+        }
+        
+        test "unit: ColumnManagement: set column properties" {
+            const prob = createProblem();
+            defer deleteProblem(prob);
+            
+            const col_idx = addColumns(prob, 1);
+            
+            // Set column name (should not crash)
+            setColumnName(prob, col_idx, TEST_COL_NAME);
+            
+            // Set objective coefficient
+            setObjectiveCoef(prob, col_idx, 3.5);
+            
+            // Set different types of bounds
+            setColumnBounds(prob, col_idx, GLP_FX, 10.0, 10.0);  // Fixed
+            setColumnBounds(prob, col_idx, GLP_LO, 0.0, 0.0);    // Lower bound
+            setColumnBounds(prob, col_idx, GLP_UP, 0.0, 100.0);  // Upper bound
+            setColumnBounds(prob, col_idx, GLP_DB, 0.0, 100.0);  // Double bound
+            setColumnBounds(prob, col_idx, GLP_FR, 0.0, 0.0);    // Free
+            
+            // Set column kind
+            setColumnKind(prob, col_idx, GLP_CV);  // Continuous
+            setColumnKind(prob, col_idx, GLP_IV);  // Integer
+            setColumnKind(prob, col_idx, GLP_BV);  // Binary
+        }
+    
+    // └──────────────────────────────────────────────────────────────────────────────┘
+    
+    // ┌──────────────────────────── Matrix Coefficient Tests ────────────────────────────┐
+    
+        test "unit: MatrixOperations: set matrix row" {
+            const prob = createProblem();
+            defer deleteProblem(prob);
+            
+            _ = addRows(prob, 1);
+            _ = addColumns(prob, 3);
+            
+            // Set entire row at once
+            var indices = [_]c_int{ 0, 1, 2, 3 };  // 1-based indexing
+            var values = [_]f64{ 0, 2.5, 3.0, 1.5 };
+            
+            setMatrixRow(prob, 1, 3, &indices, &values);
+        }
+        
+        test "unit: MatrixOperations: set matrix column" {
+            const prob = createProblem();
+            defer deleteProblem(prob);
+            
+            _ = addRows(prob, 3);
+            _ = addColumns(prob, 1);
+            
+            // Set entire column at once
+            var indices = [_]c_int{ 0, 1, 2, 3 };  // 1-based indexing
+            var values = [_]f64{ 0, 4.0, 2.0, 5.0 };
+            
+            setMatrixCol(prob, 1, 3, &indices, &values);
+        }
+    
+    // └──────────────────────────────────────────────────────────────────────────────┘
+    
+    // ┌──────────────────────────── Parameter Initialization Tests ────────────────────────────┐
+    
+        test "unit: Parameters: initialize simplex parameters" {
+            var params: SimplexParams = undefined;
+            initSimplexParams(&params);
+            
+            // Check some default values are set
+            try testing.expect(params.msg_lev >= GLP_MSG_OFF);
+            try testing.expect(params.msg_lev <= GLP_MSG_DBG);
+        }
+        
+        test "unit: Parameters: initialize interior point parameters" {
+            var params: InteriorParams = undefined;
+            initInteriorParams(&params);
+            
+            // Just verify it doesn't crash
+            try testing.expect(params.msg_lev >= GLP_MSG_OFF);
+            try testing.expect(params.msg_lev <= GLP_MSG_DBG);
+        }
+        
+        test "unit: Parameters: initialize MIP parameters" {
+            var params: MIPParams = undefined;
+            initMIPParams(&params);
+            
+            // Just verify it doesn't crash
+            try testing.expect(params.msg_lev >= GLP_MSG_OFF);
+            try testing.expect(params.msg_lev <= GLP_MSG_DBG);
+        }
+    
+    // └──────────────────────────────────────────────────────────────────────────────┘
+    
+    // ┌──────────────────────────── Constants Verification Tests ────────────────────────────┐
+    
+        test "unit: Constants: optimization direction constants are distinct" {
+            try testing.expect(GLP_MIN != GLP_MAX);
+        }
+        
+        test "unit: Constants: variable bound types are distinct" {
+            const bounds = [_]c_int{ 
+                GLP_FR, 
+                GLP_LO, 
+                GLP_UP, 
+                GLP_DB, 
+                GLP_FX 
+            };
+            
+            // Check all bound types are unique
+            for (bounds, 0..) |bound1, i| {
+                for (bounds[i + 1..]) |bound2| {
+                    try testing.expect(bound1 != bound2);
+                }
+            }
+        }
+        
+        test "unit: Constants: variable kinds are distinct" {
+            try testing.expect(GLP_CV != GLP_IV);
+            try testing.expect(GLP_CV != GLP_BV);
+            try testing.expect(GLP_IV != GLP_BV);
+        }
+        
+        test "unit: Constants: solution status constants are distinct" {
+            const statuses = [_]c_int{
+                GLP_UNDEF,
+                GLP_FEAS,
+                GLP_INFEAS,
+                GLP_NOFEAS,
+                GLP_OPT,
+                GLP_UNBND
+            };
+            
+            // Check all status values are unique
+            for (statuses, 0..) |status1, i| {
+                for (statuses[i + 1..]) |status2| {
+                    try testing.expect(status1 != status2);
+                }
+            }
+        }
+        
+        test "unit: Constants: message levels are distinct" {
+            const levels = [_]c_int{
+                GLP_MSG_OFF,
+                GLP_MSG_ERR,
+                GLP_MSG_ON,
+                GLP_MSG_ALL,
+                GLP_MSG_DBG
+            };
+            
+            // Check all message levels are unique
+            for (levels, 0..) |level1, i| {
+                for (levels[i + 1..]) |level2| {
+                    try testing.expect(level1 != level2);
+                }
+            }
+        }
+    
+    // └──────────────────────────────────────────────────────────────────────────────┘
+
+// ╚══════════════════════════════════════════════════════════════════════════════════════╝
