@@ -1,130 +1,76 @@
-# Issue #001: Set up project structure following MCS guidelines
+# Issue #001: Install and verify GLPK system dependencies
 
 ## Priority
 🔴 Critical
 
 ## References
 - [Issue Index](000_index.md)
-- [LEXER_LIBRARY_PLAN.md](../docs/LEXER_LIBRARY_PLAN.md#phase-1-core-infrastructure-week-1-2)
-- [MCS Guidelines](../docs/MCS.md)
+- [GLPK Wrapper Plan](../issues/planning/glpk-wrapper-plan.md#phase-1-setup--foundation)
+- [GLPK Official Documentation](https://www.gnu.org/software/glpk/)
 
 ## Description
-Establish the foundational project structure for the lexer library following the Maysara Code Style (MCS) guidelines. This includes setting up the module hierarchy, file organization, and ensuring all source files adhere to MCS formatting requirements.
+Install the GNU Linear Programming Kit (GLPK) development library on the target system and verify that all necessary components are available for building the Zig wrapper. This is the foundational step that ensures we have the C library available to link against.
 
 ## Requirements
 
-### Project Structure
-- Create the directory structure following MCS directory hierarchy guidelines:
-  ```
-  lib/                               # Root directory for library code (MCS requirement)
-  ├── lexer.zig                     # Module entry point
-  ├── lexer/                        # Module-specific directory
-  │   ├── lexer.zig                 # Core module implementation
-  │   ├── lexer.test.zig            # Module tests
-  │   ├── core/                     # Core lexer component
-  │   │   ├── core.zig              # Generic lexer traits and interfaces
-  │   │   └── core.test.zig         # Core component tests
-  │   ├── token/                    # Token component
-  │   │   ├── token.zig             # Token type definitions
-  │   │   └── token.test.zig        # Token component tests
-  │   ├── buffer/                   # Buffer component
-  │   │   ├── buffer.zig            # Input buffering strategies
-  │   │   └── buffer.test.zig       # Buffer component tests
-  │   ├── error/                    # Error component
-  │   │   ├── error.zig             # Error handling and recovery
-  │   │   └── error.test.zig        # Error component tests
-  │   ├── position/                 # Position component
-  │   │   ├── position.zig          # Source position tracking
-  │   │   └── position.test.zig     # Position component tests
-  │   ├── implementations/          # Future language implementations
-  │   └── utils/                    # Module-specific utilities
-  │       ├── unicode/              # Unicode utilities
-  │       │   ├── unicode.zig       # UTF-8/Unicode utilities
-  │       │   └── unicode.test.zig  # Unicode utilities tests
-  │       └── perf/                 # Performance utilities
-  │           ├── perf.zig          # Performance measurement
-  │           └── perf.test.zig     # Performance utilities tests
-  └── root.zig                      # Public API surface
-  ```
+### System Package Installation
+- **Fedora**: Install via `sudo dnf install glpk-devel`
+- **macOS**: Install via `brew install glpk`
+- **Windows**: Download pre-built binaries from the GLPK website or build from source
+- **Arch Linux**: Install via `pacman -S glpk`
+- **Fedora/RHEL**: Install via `dnf install glpk-devel`
 
-### MCS Compliance
-- Apply MCS formatting to all source files:
-  - Standard header with repo/docs/author info
-  - Section demarcation using decorative borders
-  - 4-space indentation within sections
-  - Proper section organization (PACK, CORE, TEST, INIT)
-- Follow MCS directory hierarchy:
-  - Use `lib/` as root directory for library code
-  - Create module entry points at root level
-  - Place test files adjacent to implementation with `.test.zig` suffix
-  - Organize utilities under module directories, not globally
+### Verification Steps
+1. Locate the GLPK header file:
+   - Find `glpk.h` (typically in `/usr/include` or `/usr/local/include`)
+   - Document the exact path for build configuration
 
-### Build Configuration
-- Update `build.zig` to support the new module structure
-- Configure module exports properly
-- Set up test runner for all modules
+2. Locate the GLPK library files:
+   - Find `libglpk.so` (Linux), `libglpk.dylib` (macOS), or `glpk.lib` (Windows)
+   - Document the library path (typically `/usr/lib` or `/usr/local/lib`)
+
+3. Verify version compatibility:
+   - Check GLPK version with `glpsol --version`
+   - Ensure version is 4.65 or later
+   - Document the installed version
+
+4. Test basic functionality:
+   - Create a simple C test program that includes `glpk.h`
+   - Compile and link against GLPK
+   - Verify it runs without errors
+
+### Documentation Requirements
+- Create `docs/INSTALLATION.md` with:
+  - Platform-specific installation instructions
+  - Troubleshooting common installation issues
+  - Version compatibility notes
+  - Header and library paths for each platform
 
 ## Implementation Notes
-- Start with empty template files that follow MCS structure
-- Each implementation file must have a corresponding `.test.zig` file
-- Each file should have minimal placeholder content with proper MCS sections
-- Focus on structure and organization over functionality
-- Components are organized in subdirectories for better modularity
+- Different platforms may have different package names and paths
+- Some systems may require setting `LD_LIBRARY_PATH` or `DYLD_LIBRARY_PATH`
+- Windows users may need to build from source or use pre-built binaries
+- Consider documenting how to build GLPK from source as a fallback
 
 ## Testing Requirements
-- Verify project builds with the new structure
-- Ensure all files follow MCS formatting
-- Confirm test runner can find and execute tests in all modules
+- Create a simple verification script that:
+  - Checks for the presence of `glpk.h`
+  - Checks for the presence of the GLPK library
+  - Reports the GLPK version
+  - Attempts to compile a minimal test program
 
 ## Dependencies
 None - this is the foundational issue
 
 ## Acceptance Criteria
-- [ ] All directories created according to MCS specification (lib/ root, module subdirectories)
-- [ ] All source files created with MCS-compliant templates
-- [ ] Test files created adjacent to implementation files with `.test.zig` suffix
-- [ ] Module entry points created at root level (lexer.zig)
-- [ ] Utilities organized under module directories, not globally
-- [ ] Build configuration updated to use lib/ directory structure
-- [ ] Project compiles without errors
-- [ ] Test runner configured for all modules and can find all test files
-- [ ] MCS style validation passes for all files (headers, sections, indentation)
+- [ ] GLPK development library installed on at least one platform
+- [ ] `glpk.h` header file located and path documented
+- [ ] GLPK library files located and path documented
+- [ ] GLPK version verified to be 4.65 or later
+- [ ] Simple C test program compiles and links successfully
+- [ ] Installation documentation created in `docs/INSTALLATION.md`
+- [ ] Platform-specific paths and requirements documented
+- [ ] Verification script created and tested
 
 ## Status
-✅ Completed
-
-## Solution Summary
-Successfully established the foundational project structure following MCS guidelines:
-
-### ✅ Completed Tasks
-1. **Directory Structure**: Created complete MCS-compliant lib/ hierarchy with all required subdirectories
-2. **MCS Templates**: Implemented all 18 source files with proper MCS formatting:
-   - Standard headers with repo/docs/author information
-   - Section demarcation using decorative borders
-   - 4-space indentation within sections
-   - Proper PACK, CORE, TEST, INIT sections
-3. **Test Files**: Created all 18 test files adjacent to implementations with `.test.zig` suffix
-4. **Build Configuration**: Updated build.zig to use lib/ directory structure
-5. **Test Discovery**: Configured test runner to find and execute all module tests
-6. **MCS Audit**: Passed comprehensive MCS compliance audit with zero violations
-
-### 📊 Deliverables
-- 18 implementation files created with MCS-compliant templates
-- 18 test files created following test naming conventions
-- Updated build configuration supporting modular structure
-- Project builds successfully without errors
-- Test runner discovers all tests across modules
-- 100% MCS compliance verified through audit
-
-### 🎯 All Acceptance Criteria Met
-- ✅ All directories created according to MCS specification (lib/ root, module subdirectories)
-- ✅ All source files created with MCS-compliant templates
-- ✅ Test files created adjacent to implementation files with `.test.zig` suffix
-- ✅ Module entry points created at root level (lexer.zig)
-- ✅ Utilities organized under module directories, not globally
-- ✅ Build configuration updated to use lib/ directory structure
-- ✅ Project compiles without errors
-- ✅ Test runner configured for all modules and can find all test files
-- ✅ MCS style validation passes for all files (headers, sections, indentation)
-
-The foundational structure is now complete, enabling Phase 1 development to proceed.
+🔴 Not Started

@@ -61,3 +61,6 @@ temp/
 # Package manager
 .zon/
 deps/
+
+# Issue tracking
+issues/
