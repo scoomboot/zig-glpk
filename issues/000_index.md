@@ -3,12 +3,13 @@
 ## Active Issues
 
 ### Phase 1: Setup & Foundation (Days 1-2)
-- 🔴 [#001](001_issue.md): Install and verify GLPK system dependencies
-- 🔴 [#002](002_issue.md): Create project structure and directories → [#001](001_issue.md)
-- 🔴 [#003](003_issue.md): Configure build.zig for GLPK linking → [#001](001_issue.md), [#002](002_issue.md)
+- ✅ [#001](001_issue.md): Install and verify GLPK system dependencies
+- ✅ [#002](002_issue.md): Create project structure and directories → [#001](001_issue.md)
+- 🚧 [#003](003_issue.md): Configure build.zig for GLPK linking → [#001](001_issue.md), [#002](002_issue.md)
+- 🔴 [#028](028_issue.md): Fix critical cross-platform build configuration → [#003](003_issue.md)
 
 ### Phase 2: Core Types & Problem Management (Days 3-5)
-- 🔴 [#004](004_issue.md): Implement C bindings layer for GLPK → [#002](002_issue.md), [#003](003_issue.md)
+- ✅ [#004](004_issue.md): Implement C bindings layer for GLPK → [#002](002_issue.md), [#003](003_issue.md)
 - 🔴 [#005](005_issue.md): Define Zig-friendly type definitions → [#004](004_issue.md)
 - 🔴 [#006](006_issue.md): Implement Problem struct with basic management → [#004](004_issue.md), [#005](005_issue.md)
 - 🟡 [#007](007_issue.md): Implement row (constraint) management methods → [#006](006_issue.md)
