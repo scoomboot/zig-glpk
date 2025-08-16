@@ -35,7 +35,7 @@ CLAUDE.md
 
 # Debug files
 *.pdb
-core
+/core
 vgcore.*
 callgrind.out.*
 
