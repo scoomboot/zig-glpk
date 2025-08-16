@@ -5,8 +5,8 @@
 ### Phase 1: Setup & Foundation (Days 1-2)
 - ✅ [#001](001_issue.md): Install and verify GLPK system dependencies
 - ✅ [#002](002_issue.md): Create project structure and directories → [#001](001_issue.md)
-- 🚧 [#003](003_issue.md): Configure build.zig for GLPK linking → [#001](001_issue.md), [#002](002_issue.md)
-- 🔴 [#028](028_issue.md): Fix critical cross-platform build configuration → [#003](003_issue.md)
+- ✅ [#003](003_issue.md): Configure build.zig for GLPK linking → [#001](001_issue.md), [#002](002_issue.md)
+- ✅ [#028](028_issue.md): Fix critical cross-platform build configuration → [#003](003_issue.md)
 
 ### Phase 2: Core Types & Problem Management (Days 3-5)
 - ✅ [#004](004_issue.md): Implement C bindings layer for GLPK → [#002](002_issue.md), [#003](003_issue.md)
