@@ -10,7 +10,7 @@
 
 ### Phase 2: Core Types & Problem Management (Days 3-5)
 - ✅ [#004](004_issue.md): Implement C bindings layer for GLPK → [#002](002_issue.md), [#003](003_issue.md)
-- 🔴 [#005](005_issue.md): Define Zig-friendly type definitions → [#004](004_issue.md)
+- ✅ [#005](005_issue.md): Define Zig-friendly type definitions → [#004](004_issue.md)
 - 🔴 [#006](006_issue.md): Implement Problem struct with basic management → [#004](004_issue.md), [#005](005_issue.md)
 - 🟡 [#007](007_issue.md): Implement row (constraint) management methods → [#006](006_issue.md)
 - 🟡 [#008](008_issue.md): Implement column (variable) management methods → [#006](006_issue.md)
@@ -29,7 +29,7 @@
 - 🟡 [#017](017_issue.md): Add MIP-specific solution retrieval methods → [#016](016_issue.md)
 
 ### Phase 5: Testing & Examples (Days 12-15)
-- 🔴 [#018](018_issue.md): Create unit tests for type conversions and utilities → [#005](005_issue.md)
+- ✅ [#018](018_issue.md): Create unit tests for type conversions and utilities → [#005](005_issue.md)
 - 🔴 [#019](019_issue.md): Create unit tests for Problem management → [#006](006_issue.md), [#007](007_issue.md), [#008](008_issue.md), [#009](009_issue.md)
 - 🟡 [#020](020_issue.md): Create integration test for simple LP problem → [#011](011_issue.md), [#012](012_issue.md)
 - 🟡 [#021](021_issue.md): Create integration test for MIP problem → [#016](016_issue.md), [#017](017_issue.md)
