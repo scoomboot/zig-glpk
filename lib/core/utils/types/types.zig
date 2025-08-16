@@ -143,6 +143,22 @@
                     else => error.InvalidSolutionStatus,
                 };
             }
+            
+            /// Check if the solution represents a successful state
+            pub fn isSuccess(self: SolutionStatus) bool {
+                return switch (self) {
+                    .optimal, .feasible => true,
+                    .infeasible, .no_feasible, .unbounded, .undefined => false,
+                };
+            }
+            
+            /// Check if the solution represents an error state
+            pub fn isError(self: SolutionStatus) bool {
+                return switch (self) {
+                    .optimal, .feasible => false,
+                    .infeasible, .no_feasible, .unbounded, .undefined => true,
+                };
+            }
         };
     
     // └──────────────────────────────────────────────────────────────────────────────┘
@@ -187,16 +203,16 @@
             /// Convert to GLPK constant
             pub fn toGLPK(self: PricingRule) c_int {
                 return switch (self) {
-                    .standard => 0x11,      // GLP_PT_STD
-                    .steepest_edge => 0x22,  // GLP_PT_PSE
+                    .standard => glpk.GLP_PT_STD,
+                    .steepest_edge => glpk.GLP_PT_PSE,
                 };
             }
             
             /// Convert from GLPK constant
             pub fn fromGLPK(value: c_int) !PricingRule {
                 return switch (value) {
-                    0x11 => .standard,
-                    0x22 => .steepest_edge,
+                    glpk.GLP_PT_STD => .standard,
+                    glpk.GLP_PT_PSE => .steepest_edge,
                     else => error.InvalidPricingRule,
                 };
             }
@@ -214,16 +230,16 @@
             /// Convert to GLPK constant
             pub fn toGLPK(self: RatioTest) c_int {
                 return switch (self) {
-                    .standard => 0x11,  // GLP_RT_STD
-                    .harris => 0x22,    // GLP_RT_HAR
+                    .standard => glpk.GLP_RT_STD,
+                    .harris => glpk.GLP_RT_HAR,
                 };
             }
             
             /// Convert from GLPK constant
             pub fn fromGLPK(value: c_int) !RatioTest {
                 return switch (value) {
-                    0x11 => .standard,
-                    0x22 => .harris,
+                    glpk.GLP_RT_STD => .standard,
+                    glpk.GLP_RT_HAR => .harris,
                     else => error.InvalidRatioTest,
                 };
             }
@@ -243,20 +259,20 @@
             /// Convert to GLPK constant
             pub fn toGLPK(self: BranchingRule) c_int {
                 return switch (self) {
-                    .first_fractional => 1,  // GLP_BR_FFV
-                    .last_fractional => 2,   // GLP_BR_LFV
-                    .most_fractional => 3,   // GLP_BR_MFV
-                    .driebeek_tomlin => 4,   // GLP_BR_DTH
+                    .first_fractional => glpk.GLP_BR_FFV,
+                    .last_fractional => glpk.GLP_BR_LFV,
+                    .most_fractional => glpk.GLP_BR_MFV,
+                    .driebeek_tomlin => glpk.GLP_BR_DTH,
                 };
             }
             
             /// Convert from GLPK constant
             pub fn fromGLPK(value: c_int) !BranchingRule {
                 return switch (value) {
-                    1 => .first_fractional,
-                    2 => .last_fractional,
-                    3 => .most_fractional,
-                    4 => .driebeek_tomlin,
+                    glpk.GLP_BR_FFV => .first_fractional,
+                    glpk.GLP_BR_LFV => .last_fractional,
+                    glpk.GLP_BR_MFV => .most_fractional,
+                    glpk.GLP_BR_DTH => .driebeek_tomlin,
                     else => error.InvalidBranchingRule,
                 };
             }
@@ -276,20 +292,20 @@
             /// Convert to GLPK constant
             pub fn toGLPK(self: BacktrackingRule) c_int {
                 return switch (self) {
-                    .depth_first => 1,       // GLP_BT_DFS
-                    .breadth_first => 2,     // GLP_BT_BFS
-                    .best_local => 3,        // GLP_BT_BLB
-                    .best_projection => 4,   // GLP_BT_BPH
+                    .depth_first => glpk.GLP_BT_DFS,
+                    .breadth_first => glpk.GLP_BT_BFS,
+                    .best_local => glpk.GLP_BT_BLB,
+                    .best_projection => glpk.GLP_BT_BPH,
                 };
             }
             
             /// Convert from GLPK constant
             pub fn fromGLPK(value: c_int) !BacktrackingRule {
                 return switch (value) {
-                    1 => .depth_first,
-                    2 => .breadth_first,
-                    3 => .best_local,
-                    4 => .best_projection,
+                    glpk.GLP_BT_DFS => .depth_first,
+                    glpk.GLP_BT_BFS => .breadth_first,
+                    glpk.GLP_BT_BLB => .best_local,
+                    glpk.GLP_BT_BPH => .best_projection,
                     else => error.InvalidBacktrackingRule,
                 };
             }
@@ -502,6 +518,41 @@
                 try testing.expectEqual(val, back);
             }
         }
+        
+        test "unit: SolutionStatus: isSuccess helper" {
+            // Success states
+            try testing.expect(SolutionStatus.optimal.isSuccess());
+            try testing.expect(SolutionStatus.feasible.isSuccess());
+            
+            // Non-success states
+            try testing.expect(!SolutionStatus.infeasible.isSuccess());
+            try testing.expect(!SolutionStatus.no_feasible.isSuccess());
+            try testing.expect(!SolutionStatus.unbounded.isSuccess());
+            try testing.expect(!SolutionStatus.undefined.isSuccess());
+        }
+        
+        test "unit: SolutionStatus: isError helper" {
+            // Non-error states
+            try testing.expect(!SolutionStatus.optimal.isError());
+            try testing.expect(!SolutionStatus.feasible.isError());
+            
+            // Error states
+            try testing.expect(SolutionStatus.infeasible.isError());
+            try testing.expect(SolutionStatus.no_feasible.isError());
+            try testing.expect(SolutionStatus.unbounded.isError());
+            try testing.expect(SolutionStatus.undefined.isError());
+        }
+        
+        test "unit: SolutionStatus: isSuccess and isError are mutually exclusive" {
+            const values = [_]SolutionStatus{ 
+                .optimal, .feasible, .infeasible, 
+                .no_feasible, .unbounded, .undefined 
+            };
+            for (values) |val| {
+                // A status can't be both success and error
+                try testing.expect(val.isSuccess() != val.isError());
+            }
+        }
     
     // └──────────────────────────────────────────────────────────────────────────────┘
     
@@ -537,13 +588,13 @@
     // ┌──────────────────────────── PricingRule Tests ────────────────────────────┐
     
         test "unit: PricingRule: toGLPK conversion" {
-            try testing.expectEqual(@as(c_int, 0x11), PricingRule.standard.toGLPK());
-            try testing.expectEqual(@as(c_int, 0x22), PricingRule.steepest_edge.toGLPK());
+            try testing.expectEqual(glpk.GLP_PT_STD, PricingRule.standard.toGLPK());
+            try testing.expectEqual(glpk.GLP_PT_PSE, PricingRule.steepest_edge.toGLPK());
         }
         
         test "unit: PricingRule: fromGLPK conversion" {
-            try testing.expectEqual(PricingRule.standard, try PricingRule.fromGLPK(0x11));
-            try testing.expectEqual(PricingRule.steepest_edge, try PricingRule.fromGLPK(0x22));
+            try testing.expectEqual(PricingRule.standard, try PricingRule.fromGLPK(glpk.GLP_PT_STD));
+            try testing.expectEqual(PricingRule.steepest_edge, try PricingRule.fromGLPK(glpk.GLP_PT_PSE));
         }
         
         test "unit: PricingRule: invalid fromGLPK value" {
@@ -564,13 +615,13 @@
     // ┌──────────────────────────── RatioTest Tests ────────────────────────────┐
     
         test "unit: RatioTest: toGLPK conversion" {
-            try testing.expectEqual(@as(c_int, 0x11), RatioTest.standard.toGLPK());
-            try testing.expectEqual(@as(c_int, 0x22), RatioTest.harris.toGLPK());
+            try testing.expectEqual(glpk.GLP_RT_STD, RatioTest.standard.toGLPK());
+            try testing.expectEqual(glpk.GLP_RT_HAR, RatioTest.harris.toGLPK());
         }
         
         test "unit: RatioTest: fromGLPK conversion" {
-            try testing.expectEqual(RatioTest.standard, try RatioTest.fromGLPK(0x11));
-            try testing.expectEqual(RatioTest.harris, try RatioTest.fromGLPK(0x22));
+            try testing.expectEqual(RatioTest.standard, try RatioTest.fromGLPK(glpk.GLP_RT_STD));
+            try testing.expectEqual(RatioTest.harris, try RatioTest.fromGLPK(glpk.GLP_RT_HAR));
         }
         
         test "unit: RatioTest: invalid fromGLPK value" {
@@ -591,17 +642,17 @@
     // ┌──────────────────────────── BranchingRule Tests ────────────────────────────┐
     
         test "unit: BranchingRule: toGLPK conversion" {
-            try testing.expectEqual(@as(c_int, 1), BranchingRule.first_fractional.toGLPK());
-            try testing.expectEqual(@as(c_int, 2), BranchingRule.last_fractional.toGLPK());
-            try testing.expectEqual(@as(c_int, 3), BranchingRule.most_fractional.toGLPK());
-            try testing.expectEqual(@as(c_int, 4), BranchingRule.driebeek_tomlin.toGLPK());
+            try testing.expectEqual(glpk.GLP_BR_FFV, BranchingRule.first_fractional.toGLPK());
+            try testing.expectEqual(glpk.GLP_BR_LFV, BranchingRule.last_fractional.toGLPK());
+            try testing.expectEqual(glpk.GLP_BR_MFV, BranchingRule.most_fractional.toGLPK());
+            try testing.expectEqual(glpk.GLP_BR_DTH, BranchingRule.driebeek_tomlin.toGLPK());
         }
         
         test "unit: BranchingRule: fromGLPK conversion" {
-            try testing.expectEqual(BranchingRule.first_fractional, try BranchingRule.fromGLPK(1));
-            try testing.expectEqual(BranchingRule.last_fractional, try BranchingRule.fromGLPK(2));
-            try testing.expectEqual(BranchingRule.most_fractional, try BranchingRule.fromGLPK(3));
-            try testing.expectEqual(BranchingRule.driebeek_tomlin, try BranchingRule.fromGLPK(4));
+            try testing.expectEqual(BranchingRule.first_fractional, try BranchingRule.fromGLPK(glpk.GLP_BR_FFV));
+            try testing.expectEqual(BranchingRule.last_fractional, try BranchingRule.fromGLPK(glpk.GLP_BR_LFV));
+            try testing.expectEqual(BranchingRule.most_fractional, try BranchingRule.fromGLPK(glpk.GLP_BR_MFV));
+            try testing.expectEqual(BranchingRule.driebeek_tomlin, try BranchingRule.fromGLPK(glpk.GLP_BR_DTH));
         }
         
         test "unit: BranchingRule: invalid fromGLPK value" {
@@ -625,17 +676,17 @@
     // ┌──────────────────────────── BacktrackingRule Tests ────────────────────────────┐
     
         test "unit: BacktrackingRule: toGLPK conversion" {
-            try testing.expectEqual(@as(c_int, 1), BacktrackingRule.depth_first.toGLPK());
-            try testing.expectEqual(@as(c_int, 2), BacktrackingRule.breadth_first.toGLPK());
-            try testing.expectEqual(@as(c_int, 3), BacktrackingRule.best_local.toGLPK());
-            try testing.expectEqual(@as(c_int, 4), BacktrackingRule.best_projection.toGLPK());
+            try testing.expectEqual(glpk.GLP_BT_DFS, BacktrackingRule.depth_first.toGLPK());
+            try testing.expectEqual(glpk.GLP_BT_BFS, BacktrackingRule.breadth_first.toGLPK());
+            try testing.expectEqual(glpk.GLP_BT_BLB, BacktrackingRule.best_local.toGLPK());
+            try testing.expectEqual(glpk.GLP_BT_BPH, BacktrackingRule.best_projection.toGLPK());
         }
         
         test "unit: BacktrackingRule: fromGLPK conversion" {
-            try testing.expectEqual(BacktrackingRule.depth_first, try BacktrackingRule.fromGLPK(1));
-            try testing.expectEqual(BacktrackingRule.breadth_first, try BacktrackingRule.fromGLPK(2));
-            try testing.expectEqual(BacktrackingRule.best_local, try BacktrackingRule.fromGLPK(3));
-            try testing.expectEqual(BacktrackingRule.best_projection, try BacktrackingRule.fromGLPK(4));
+            try testing.expectEqual(BacktrackingRule.depth_first, try BacktrackingRule.fromGLPK(glpk.GLP_BT_DFS));
+            try testing.expectEqual(BacktrackingRule.breadth_first, try BacktrackingRule.fromGLPK(glpk.GLP_BT_BFS));
+            try testing.expectEqual(BacktrackingRule.best_local, try BacktrackingRule.fromGLPK(glpk.GLP_BT_BLB));
+            try testing.expectEqual(BacktrackingRule.best_projection, try BacktrackingRule.fromGLPK(glpk.GLP_BT_BPH));
         }
         
         test "unit: BacktrackingRule: invalid fromGLPK value" {

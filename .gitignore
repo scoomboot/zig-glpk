@@ -30,9 +30,9 @@ out/
 Thumbs.db
 
 # Claude.ai
-# Track .claude/ directory and CLAUDE.md for project instructions
-# .claude/
-# CLAUDE.md
+# Now ignoring .claude/ directory (contains AI session artifacts)
+.claude/
+# CLAUDE.md is tracked for project instructions
 
 # Debug files
 *.pdb

@@ -111,6 +111,58 @@
     
     // └──────────────────────────────────────────────────────────────────────────────┘
     
+    // ┌──────────────────────────── Pricing Rules ────────────────────────────┐
+    
+        /// Standard pricing (Dantzig's rule)
+        pub const GLP_PT_STD = 0x11;
+        
+        /// Projected steepest edge
+        pub const GLP_PT_PSE = 0x22;
+    
+    // └──────────────────────────────────────────────────────────────────────────────┘
+    
+    // ┌──────────────────────────── Ratio Test ────────────────────────────┐
+    
+        /// Standard (textbook) ratio test
+        pub const GLP_RT_STD = 0x11;
+        
+        /// Harris' two-pass ratio test
+        pub const GLP_RT_HAR = 0x22;
+    
+    // └──────────────────────────────────────────────────────────────────────────────┘
+    
+    // ┌──────────────────────────── Branching Rules ────────────────────────────┐
+    
+        /// First fractional variable
+        pub const GLP_BR_FFV = 1;
+        
+        /// Last fractional variable
+        pub const GLP_BR_LFV = 2;
+        
+        /// Most fractional variable
+        pub const GLP_BR_MFV = 3;
+        
+        /// Heuristic by Driebeck and Tomlin
+        pub const GLP_BR_DTH = 4;
+    
+    // └──────────────────────────────────────────────────────────────────────────────┘
+    
+    // ┌──────────────────────────── Backtracking Rules ────────────────────────────┐
+    
+        /// Depth first search
+        pub const GLP_BT_DFS = 1;
+        
+        /// Breadth first search
+        pub const GLP_BT_BFS = 2;
+        
+        /// Best local bound
+        pub const GLP_BT_BLB = 3;
+        
+        /// Best projection heuristic
+        pub const GLP_BT_BPH = 4;
+    
+    // └──────────────────────────────────────────────────────────────────────────────┘
+    
     // ┌──────────────────────────── Preprocessing Options ────────────────────────────┐
     
         /// Preprocessing: off
