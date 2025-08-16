@@ -63,4 +63,4 @@ temp/
 deps/
 
 # Issue tracking
-issues/
+# issues/  # Now tracking issues in git
