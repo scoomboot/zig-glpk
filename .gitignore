@@ -30,8 +30,9 @@ out/
 Thumbs.db
 
 # Claude.ai
-.claude/
-CLAUDE.md
+# Track .claude/ directory and CLAUDE.md for project instructions
+# .claude/
+# CLAUDE.md
 
 # Debug files
 *.pdb
