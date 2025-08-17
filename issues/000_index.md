@@ -16,7 +16,7 @@
 - ✅ [#004](004_issue.md): Implement C bindings layer for GLPK → [#002](002_issue.md), [#003](003_issue.md)
 - ✅ [#005](005_issue.md): Define Zig-friendly type definitions → [#004](004_issue.md)
 - ✅ [#006](006_issue.md): Implement Problem struct with basic management → [#004](004_issue.md), [#005](005_issue.md)
-- 🟡 [#007](007_issue.md): Implement row (constraint) management methods → [#006](006_issue.md), [#029](029_issue.md)
+- ✅ [#007](007_issue.md): Implement row (constraint) management methods → [#006](006_issue.md), [#029](029_issue.md)
 - 🟡 [#008](008_issue.md): Implement column (variable) management methods → [#006](006_issue.md), [#029](029_issue.md)
 - 🟡 [#009](009_issue.md): Implement sparse matrix loading → [#006](006_issue.md), [#007](007_issue.md), [#008](008_issue.md), [#030](030_issue.md)
 

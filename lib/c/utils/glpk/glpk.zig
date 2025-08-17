@@ -248,6 +248,33 @@
         pub fn deleteRows(prob: ?*c.glp_prob, nrs: c_int, num: [*c]const c_int) void {
             c.glp_del_rows(prob, nrs, num);
         }
+        
+        /// Get row name
+        pub fn getRowName(prob: ?*c.glp_prob, i: c_int) ?[*:0]const u8 {
+            return c.glp_get_row_name(prob, i);
+        }
+        
+        /// Get row type (bound type)
+        pub fn getRowType(prob: ?*c.glp_prob, i: c_int) c_int {
+            return c.glp_get_row_type(prob, i);
+        }
+        
+        /// Get row lower bound
+        pub fn getRowLowerBound(prob: ?*c.glp_prob, i: c_int) f64 {
+            return c.glp_get_row_lb(prob, i);
+        }
+        
+        /// Get row upper bound
+        pub fn getRowUpperBound(prob: ?*c.glp_prob, i: c_int) f64 {
+            return c.glp_get_row_ub(prob, i);
+        }
+        
+        /// Get row of the constraint matrix
+        /// Returns the number of non-zero elements
+        /// If ind and val are null, just returns the count
+        pub fn getMatrixRow(prob: ?*c.glp_prob, i: c_int, ind: ?[*]c_int, val: ?[*]f64) c_int {
+            return c.glp_get_mat_row(prob, i, ind, val);
+        }
     
     // └──────────────────────────────────────────────────────────────────────────────┘
     
