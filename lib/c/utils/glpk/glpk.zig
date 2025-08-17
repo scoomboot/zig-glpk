@@ -172,9 +172,6 @@
         pub const GLP_ON = c.GLP_ON;
     
     // └──────────────────────────────────────────────────────────────────────────────┘
-
-    
-    // └──────────────────────────────────────────────────────────────────────────────┘
     
     // ┌──────────────────────────── Type Aliases ────────────────────────────┐
     
@@ -300,14 +297,86 @@
             c.glp_load_matrix(prob, ne, ia, ja, ar);
         }
         
-        /// Set row of the constraint matrix
+        /// Set row of the constraint matrix (expects 1-based arrays with dummy element at index 0)
+        /// Direct wrapper for GLPK's glp_set_mat_row - use safeSetMatrixRow for 0-based arrays
         pub fn setMatrixRow(prob: ?*c.glp_prob, i: c_int, len: c_int, ind: [*c]const c_int, val: [*c]const f64) void {
             c.glp_set_mat_row(prob, i, len, ind, val);
         }
         
-        /// Set column of the constraint matrix
+        /// Set column of the constraint matrix (expects 1-based arrays with dummy element at index 0)
+        /// Direct wrapper for GLPK's glp_set_mat_col - use safeSetMatrixCol for 0-based arrays
         pub fn setMatrixCol(prob: ?*c.glp_prob, j: c_int, len: c_int, ind: [*c]const c_int, val: [*c]const f64) void {
             c.glp_set_mat_col(prob, j, len, ind, val);
+        }
+        
+        /// Safe wrapper for setMatrixRow that handles 0-based array conversion to 1-based GLPK format
+        /// Takes 0-based arrays and converts them to 1-based arrays with dummy element at index 0
+        pub fn safeSetMatrixRow(
+            allocator: std.mem.Allocator,
+            prob: ?*c.glp_prob,
+            i: c_int,
+            ind: []const c_int,
+            val: []const f64,
+        ) !void {
+            if (ind.len != val.len) {
+                return error.MismatchedArrayLengths;
+            }
+            
+            // Allocate 1-based arrays with space for dummy element at index 0
+            const ind_1based = try allocator.alloc(c_int, ind.len + 1);
+            defer allocator.free(ind_1based);
+            const val_1based = try allocator.alloc(f64, val.len + 1);
+            defer allocator.free(val_1based);
+            
+            // Set dummy element at index 0
+            ind_1based[0] = 0;
+            val_1based[0] = 0;
+            
+            // Copy 0-based data to 1-based positions
+            for (ind, 0..) |index, k| {
+                ind_1based[k + 1] = index;
+            }
+            for (val, 0..) |value, k| {
+                val_1based[k + 1] = value;
+            }
+            
+            // Call the original function with 1-based arrays
+            setMatrixRow(prob, i, @intCast(ind.len), ind_1based.ptr, val_1based.ptr);
+        }
+        
+        /// Safe wrapper for setMatrixCol that handles 0-based array conversion to 1-based GLPK format
+        /// Takes 0-based arrays and converts them to 1-based arrays with dummy element at index 0
+        pub fn safeSetMatrixCol(
+            allocator: std.mem.Allocator,
+            prob: ?*c.glp_prob,
+            j: c_int,
+            ind: []const c_int,
+            val: []const f64,
+        ) !void {
+            if (ind.len != val.len) {
+                return error.MismatchedArrayLengths;
+            }
+            
+            // Allocate 1-based arrays with space for dummy element at index 0
+            const ind_1based = try allocator.alloc(c_int, ind.len + 1);
+            defer allocator.free(ind_1based);
+            const val_1based = try allocator.alloc(f64, val.len + 1);
+            defer allocator.free(val_1based);
+            
+            // Set dummy element at index 0
+            ind_1based[0] = 0;
+            val_1based[0] = 0;
+            
+            // Copy 0-based data to 1-based positions
+            for (ind, 0..) |index, k| {
+                ind_1based[k + 1] = index;
+            }
+            for (val, 0..) |value, k| {
+                val_1based[k + 1] = value;
+            }
+            
+            // Call the original function with 1-based arrays
+            setMatrixCol(prob, j, @intCast(ind.len), ind_1based.ptr, val_1based.ptr);
         }
         
         // Note: glp_set_aij doesn't exist in GLPK 5.0
@@ -474,57 +543,56 @@
         }
     
     // └──────────────────────────────────────────────────────────────────────────────┘
-
-    
-    // └──────────────────────────────────────────────────────────────────────────────┘
     
     // ┌──────────────────────────── Utility Functions ────────────────────────────┐
     
         /// Get GLPK library version string.
-    ///
-    /// Returns the version of the GLPK library as a string (e.g., "5.0").
-    ///
-    /// __Return__
-    ///
-    /// - String slice containing the GLPK version
-    pub fn getVersion() [:0]const u8 {
-        // glp_version returns a null-terminated C string
-        const version_ptr = c.glp_version();
-        return std.mem.span(version_ptr);
-    }
-    
-    /// Get GLPK library major version number.
-    ///
-    /// Extracts the major version number from the version string.
-    ///
-    /// __Return__
-    ///
-    /// - Major version number, or 0 if parsing fails
-    pub fn getMajorVersion() u32 {
-        const version = getVersion();
-        var iter = std.mem.tokenizeScalar(u8, version, '.');
-        if (iter.next()) |major_str| {
-            return std.fmt.parseInt(u32, major_str, 10) catch 0;
+        ///
+        /// Returns the version of the GLPK library as a string (e.g., "5.0").
+        ///
+        /// __Return__
+        ///
+        /// - String slice containing the GLPK version
+        pub fn getVersion() [:0]const u8 {
+            // glp_version returns a null-terminated C string
+            const version_ptr = c.glp_version();
+            return std.mem.span(version_ptr);
         }
-        return 0;
-    }
-    
-    /// Get GLPK library minor version number.
-    ///
-    /// Extracts the minor version number from the version string.
-    ///
-    /// __Return__
-    ///
-    /// - Minor version number, or 0 if parsing fails
-    pub fn getMinorVersion() u32 {
-        const version = getVersion();
-        var iter = std.mem.tokenizeScalar(u8, version, '.');
-        _ = iter.next(); // Skip major version
-        if (iter.next()) |minor_str| {
-            return std.fmt.parseInt(u32, minor_str, 10) catch 0;
+        
+        /// Get GLPK library major version number.
+        ///
+        /// Extracts the major version number from the version string.
+        ///
+        /// __Return__
+        ///
+        /// - Major version number, or 0 if parsing fails
+        pub fn getMajorVersion() u32 {
+            const version = getVersion();
+            var iter = std.mem.tokenizeScalar(u8, version, '.');
+            if (iter.next()) |major_str| {
+                return std.fmt.parseInt(u32, major_str, 10) catch 0;
+            }
+            return 0;
         }
-        return 0;
-    }
+        
+        /// Get GLPK library minor version number.
+        ///
+        /// Extracts the minor version number from the version string.
+        ///
+        /// __Return__
+        ///
+        /// - Minor version number, or 0 if parsing fails
+        pub fn getMinorVersion() u32 {
+            const version = getVersion();
+            var iter = std.mem.tokenizeScalar(u8, version, '.');
+            _ = iter.next(); // Skip major version
+            if (iter.next()) |minor_str| {
+                return std.fmt.parseInt(u32, minor_str, 10) catch 0;
+            }
+            return 0;
+        }
+    
+    // └──────────────────────────────────────────────────────────────────────────────┘
 
 // ╚══════════════════════════════════════════════════════════════════════════════════════╝
 
@@ -740,32 +808,89 @@
     
     // ┌──────────────────────────── Matrix Coefficient Tests ────────────────────────────┐
     
-        test "unit: MatrixOperations: set matrix row" {
+        test "unit: MatrixOperations: set matrix row with 1-based arrays" {
             const prob = createProblem();
             defer deleteProblem(prob);
             
             _ = addRows(prob, 1);
             _ = addColumns(prob, 3);
             
-            // Set entire row at once
+            // Set entire row at once with 1-based arrays (dummy element at index 0)
             var indices = [_]c_int{ 0, 1, 2, 3 };  // 1-based indexing
             var values = [_]f64{ 0, 2.5, 3.0, 1.5 };
             
             setMatrixRow(prob, 1, 3, &indices, &values);
         }
         
-        test "unit: MatrixOperations: set matrix column" {
+        test "unit: MatrixOperations: set matrix column with 1-based arrays" {
             const prob = createProblem();
             defer deleteProblem(prob);
             
             _ = addRows(prob, 3);
             _ = addColumns(prob, 1);
             
-            // Set entire column at once
+            // Set entire column at once with 1-based arrays (dummy element at index 0)
             var indices = [_]c_int{ 0, 1, 2, 3 };  // 1-based indexing
             var values = [_]f64{ 0, 4.0, 2.0, 5.0 };
             
             setMatrixCol(prob, 1, 3, &indices, &values);
+        }
+        
+        test "unit: MatrixOperations: safe set matrix row with 0-based arrays" {
+            const prob = createProblem();
+            defer deleteProblem(prob);
+            
+            _ = addRows(prob, 1);
+            _ = addColumns(prob, 3);
+            
+            // Use 0-based arrays with safe wrapper
+            const indices = [_]c_int{ 1, 2, 3 };  // 0-based column indices
+            const values = [_]f64{ 2.5, 3.0, 1.5 };
+            
+            try safeSetMatrixRow(testing.allocator, prob, 1, &indices, &values);
+        }
+        
+        test "unit: MatrixOperations: safe set matrix column with 0-based arrays" {
+            const prob = createProblem();
+            defer deleteProblem(prob);
+            
+            _ = addRows(prob, 3);
+            _ = addColumns(prob, 1);
+            
+            // Use 0-based arrays with safe wrapper
+            const indices = [_]c_int{ 1, 2, 3 };  // 0-based row indices
+            const values = [_]f64{ 4.0, 2.0, 5.0 };
+            
+            try safeSetMatrixCol(testing.allocator, prob, 1, &indices, &values);
+        }
+        
+        test "unit: MatrixOperations: safe wrappers validate array lengths" {
+            const prob = createProblem();
+            defer deleteProblem(prob);
+            
+            _ = addRows(prob, 1);
+            _ = addColumns(prob, 3);
+            
+            // Mismatched array lengths should return error
+            const indices = [_]c_int{ 1, 2, 3 };
+            const values = [_]f64{ 2.5, 3.0 };  // One less value than indices
+            
+            const result = safeSetMatrixRow(testing.allocator, prob, 1, &indices, &values);
+            try testing.expectError(error.MismatchedArrayLengths, result);
+        }
+        
+        test "unit: MatrixOperations: safe wrappers handle empty arrays" {
+            const prob = createProblem();
+            defer deleteProblem(prob);
+            
+            _ = addRows(prob, 1);
+            _ = addColumns(prob, 3);
+            
+            // Empty arrays should work
+            const indices = [_]c_int{};
+            const values = [_]f64{};
+            
+            try safeSetMatrixRow(testing.allocator, prob, 1, &indices, &values);
         }
     
     // └──────────────────────────────────────────────────────────────────────────────┘

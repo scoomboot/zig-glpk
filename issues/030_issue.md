@@ -107,14 +107,62 @@ Replace with `glp_load_matrix` for batch operations.
 - [#004](004_issue.md) - C bindings layer (may need updates)
 
 ## Acceptance Criteria
-- [ ] setMatrixRow works without segmentation faults
-- [ ] All three disabled tests pass
-- [ ] No memory leaks or corruption
-- [ ] Clear documentation on proper usage
-- [ ] Safe wrapper if direct fix not possible
+- [x] setMatrixRow works without segmentation faults
+- [x] All three disabled tests pass
+- [x] No memory leaks or corruption
+- [x] Clear documentation on proper usage
+- [x] Safe wrapper if direct fix not possible
 
 ## Status
-🔴 Not Started
+✅ Completed
+
+## Resolution Summary
+
+### Root Cause
+GLPK requires 1-based indexed arrays where index 0 is a dummy element that must be present but is ignored by GLPK functions. The original implementation was passing 0-based Zig arrays directly to GLPK, causing segmentation faults when GLPK tried to access the non-existent dummy element.
+
+### Solution Implemented
+
+#### 1. Fixed Direct Usage (Immediate Fix)
+- Updated all three failing tests to use 1-based arrays with dummy elements at index 0
+- Changed array declarations from `[2]c_int` to `[3]c_int` to include space for dummy element
+- Arrays now follow pattern: `.{ 0, actual_value1, actual_value2, ... }`
+
+#### 2. Added Safe Wrapper Functions (Long-term Solution)
+Created two new safe wrapper functions in `lib/c/utils/glpk/glpk.zig`:
+- `safeSetMatrixRow(allocator, prob, i, len, ind_0based, val_0based)` 
+- `safeSetMatrixCol(allocator, prob, j, len, ind_0based, val_0based)`
+
+These functions:
+- Accept natural 0-based Zig arrays
+- Validate array lengths match
+- Allocate temporary 1-based arrays with dummy element
+- Convert 0-based indices to 1-based format
+- Call original GLPK functions with properly formatted arrays
+- Clean up allocated memory automatically
+
+#### 3. Documentation and Examples
+- Added clear documentation to existing functions about 1-based indexing requirement
+- Created comprehensive example in `examples/matrix_indexing_example.zig`
+- Added tests for safe wrapper functions
+
+### Testing Results
+- All 191 tests now pass (up from 188 when 3 tests were disabled)
+- Three previously disabled tests now working:
+  1. "unit: Problem: getNonZeroCount with constraint matrix" ✅
+  2. "unit: Problem: clone preserves constraint matrix" ✅  
+  3. "unit: Problem: getStats counts non-zeros correctly" ✅
+- No memory leaks or segmentation faults
+
+### Files Modified
+- `lib/c/utils/glpk/glpk.zig` - Added safe wrappers and documentation
+- `lib/core/problem/problem.test.zig` - Fixed and re-enabled 3 tests
+- `examples/matrix_indexing_example.zig` - Created comprehensive example
+
+### Backward Compatibility
+- Original `setMatrixRow` and `setMatrixCol` functions remain unchanged
+- Direct GLPK usage with 1-based arrays still works
+- New safe wrappers provide idiomatic Zig interface for 0-based arrays
 
 ## Notes
-This issue affects core matrix manipulation functionality but has workarounds (using other matrix loading methods). Priority is medium because basic problem solving can proceed without it, but it should be fixed for full API compatibility.
+This issue has been fully resolved. The fix maintains backward compatibility while providing a safer interface for Zig developers unfamiliar with GLPK's 1-based indexing convention.

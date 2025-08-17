@@ -10,7 +10,7 @@
 
 ### Critical Fixes (Immediate)
 - ✅ [#029](029_issue.md): Restructure module directory to comply with MCS rules → [#006](006_issue.md)
-- 🟡 [#030](030_issue.md): Fix GLPK array pointer handling in setMatrixRow → [#004](004_issue.md), [#006](006_issue.md)
+- ✅ [#030](030_issue.md): Fix GLPK array pointer handling in setMatrixRow → [#004](004_issue.md), [#006](006_issue.md)
 
 ### Phase 2: Core Types & Problem Management (Days 3-5)
 - ✅ [#004](004_issue.md): Implement C bindings layer for GLPK → [#002](002_issue.md), [#003](003_issue.md)

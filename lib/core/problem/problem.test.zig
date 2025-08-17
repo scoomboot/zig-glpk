@@ -214,27 +214,26 @@
             try testing.expectEqual(@as(usize, 10), prob.getColumnCount());
         }
         
-        // TODO: Fix segmentation fault in this test - issue with setMatrixRow
-        // test "unit: Problem: getNonZeroCount with constraint matrix" {
-        //     var prob = try problem.Problem.init(testing.allocator);
-        //     defer prob.deinit();
-        //     
-        //     // Add rows and columns
-        //     const row1 = glpk.addRows(prob.ptr, 2);
-        //     const col1 = glpk.addColumns(prob.ptr, 3);
-        //     
-        //     // Set some non-zero coefficients using proper array pointers
-        //     var ind: [2]c_int = .{ col1, col1 + 1 };
-        //     var val: [2]f64 = .{ 1.0, 2.0 };
-        //     glpk.setMatrixRow(prob.ptr, row1, 2, &ind, &val);
-        //     
-        //     var ind2: [2]c_int = .{ col1 + 1, col1 + 2 };
-        //     var val2: [2]f64 = .{ 3.0, 4.0 };
-        //     glpk.setMatrixRow(prob.ptr, row1 + 1, 2, &ind2, &val2);
-        //     
-        //     // Should have 4 non-zero elements
-        //     try testing.expectEqual(@as(usize, 4), prob.getNonZeroCount());
-        // }
+        test "unit: Problem: getNonZeroCount with constraint matrix" {
+            var prob = try problem.Problem.init(testing.allocator);
+            defer prob.deinit();
+            
+            // Add rows and columns
+            const row1 = glpk.addRows(prob.ptr, 2);
+            const col1 = glpk.addColumns(prob.ptr, 3);
+            
+            // Set some non-zero coefficients using 1-based arrays (dummy element at index 0)
+            var ind: [3]c_int = .{ 0, col1, col1 + 1 };  // 1-based: dummy 0, then columns
+            var val: [3]f64 = .{ 0, 1.0, 2.0 };          // 1-based: dummy 0, then values
+            glpk.setMatrixRow(prob.ptr, row1, 2, &ind, &val);
+            
+            var ind2: [3]c_int = .{ 0, col1 + 1, col1 + 2 };  // 1-based: dummy 0, then columns
+            var val2: [3]f64 = .{ 0, 3.0, 4.0 };              // 1-based: dummy 0, then values
+            glpk.setMatrixRow(prob.ptr, row1 + 1, 2, &ind2, &val2);
+            
+            // Should have 4 non-zero elements
+            try testing.expectEqual(@as(usize, 4), prob.getNonZeroCount());
+        }
         
         test "stress: Problem: handle large number of rows and columns" {
             var prob = try problem.Problem.init(testing.allocator);
@@ -410,25 +409,24 @@
             try testing.expectEqual(@as(usize, 4), cloned.getColumnCount());
         }
         
-        // TODO: Fix segmentation fault - issue with setMatrixRow 
-        // test "unit: Problem: clone preserves constraint matrix" {
-        //     var prob = try problem.Problem.init(testing.allocator);
-        //     defer prob.deinit();
-        //     
-        //     const row1 = glpk.addRows(prob.ptr, 1);
-        //     const col1 = glpk.addColumns(prob.ptr, 2);
-        //     
-        //     // Set matrix coefficients
-        //     var ind: [2]c_int = .{ col1, col1 + 1 };
-        //     var val: [2]f64 = .{ 5.0, 7.0 };
-        //     glpk.setMatrixRow(prob.ptr, row1, 2, &ind, &val);
-        //     
-        //     var cloned = try prob.clone();
-        //     defer cloned.deinit();
-        //     
-        //     // Both should have same non-zero count
-        //     try testing.expectEqual(prob.getNonZeroCount(), cloned.getNonZeroCount());
-        // }
+        test "unit: Problem: clone preserves constraint matrix" {
+            var prob = try problem.Problem.init(testing.allocator);
+            defer prob.deinit();
+            
+            const row1 = glpk.addRows(prob.ptr, 1);
+            const col1 = glpk.addColumns(prob.ptr, 2);
+            
+            // Set matrix coefficients using 1-based arrays (dummy element at index 0)
+            var ind: [3]c_int = .{ 0, col1, col1 + 1 };  // 1-based: dummy 0, then columns
+            var val: [3]f64 = .{ 0, 5.0, 7.0 };          // 1-based: dummy 0, then values
+            glpk.setMatrixRow(prob.ptr, row1, 2, &ind, &val);
+            
+            var cloned = try prob.clone();
+            defer cloned.deinit();
+            
+            // Both should have same non-zero count
+            try testing.expectEqual(prob.getNonZeroCount(), cloned.getNonZeroCount());
+        }
         
         test "unit: Problem: modifications to clone don't affect original" {
             var prob = try problem.Problem.init(testing.allocator);
@@ -605,26 +603,25 @@
             try testing.expectEqualStrings("Mixed Problem", stats.name.?);
         }
         
-        // TODO: Fix segmentation fault - issue with setMatrixRow
-        // test "unit: Problem: getStats counts non-zeros correctly" {
-        //     var prob = try problem.Problem.init(testing.allocator);
-        //     defer prob.deinit();
-        //     
-        //     const row1 = glpk.addRows(prob.ptr, 2);
-        //     const col1 = glpk.addColumns(prob.ptr, 3);
-        //     
-        //     // Add non-zero coefficients
-        //     var ind1: [2]c_int = .{ col1, col1 + 2 };
-        //     var val1: [2]f64 = .{ 1.5, -2.5 };
-        //     glpk.setMatrixRow(prob.ptr, row1, 2, &ind1, &val1);
-        //     
-        //     var ind2: [3]c_int = .{ col1, col1 + 1, col1 + 2 };
-        //     var val2: [3]f64 = .{ 3.0, 4.0, 5.0 };
-        //     glpk.setMatrixRow(prob.ptr, row1 + 1, 3, &ind2, &val2);
-        //     
-        //     const stats = prob.getStats();
-        //     try testing.expectEqual(@as(usize, 5), stats.non_zeros);
-        // }
+        test "unit: Problem: getStats counts non-zeros correctly" {
+            var prob = try problem.Problem.init(testing.allocator);
+            defer prob.deinit();
+            
+            const row1 = glpk.addRows(prob.ptr, 2);
+            const col1 = glpk.addColumns(prob.ptr, 3);
+            
+            // Add non-zero coefficients using 1-based arrays (dummy element at index 0)
+            var ind1: [3]c_int = .{ 0, col1, col1 + 2 };  // 1-based: dummy 0, then columns
+            var val1: [3]f64 = .{ 0, 1.5, -2.5 };         // 1-based: dummy 0, then values
+            glpk.setMatrixRow(prob.ptr, row1, 2, &ind1, &val1);
+            
+            var ind2: [4]c_int = .{ 0, col1, col1 + 1, col1 + 2 };  // 1-based: dummy 0, then columns
+            var val2: [4]f64 = .{ 0, 3.0, 4.0, 5.0 };               // 1-based: dummy 0, then values
+            glpk.setMatrixRow(prob.ptr, row1 + 1, 3, &ind2, &val2);
+            
+            const stats = prob.getStats();
+            try testing.expectEqual(@as(usize, 5), stats.non_zeros);
+        }
     
     // └──────────────────────────────────────────────────────────────────────────────┘
     
