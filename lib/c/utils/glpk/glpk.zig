@@ -314,6 +314,43 @@
         pub fn deleteColumns(prob: ?*c.glp_prob, ncs: c_int, num: [*c]const c_int) void {
             c.glp_del_cols(prob, ncs, num);
         }
+        
+        /// Get column name
+        pub fn getColumnName(prob: ?*c.glp_prob, j: c_int) ?[*:0]const u8 {
+            return c.glp_get_col_name(prob, j);
+        }
+        
+        /// Get column type (bound type)
+        pub fn getColumnType(prob: ?*c.glp_prob, j: c_int) c_int {
+            return c.glp_get_col_type(prob, j);
+        }
+        
+        /// Get column lower bound
+        pub fn getColumnLowerBound(prob: ?*c.glp_prob, j: c_int) f64 {
+            return c.glp_get_col_lb(prob, j);
+        }
+        
+        /// Get column upper bound
+        pub fn getColumnUpperBound(prob: ?*c.glp_prob, j: c_int) f64 {
+            return c.glp_get_col_ub(prob, j);
+        }
+        
+        /// Get objective coefficient for a column
+        pub fn getObjectiveCoef(prob: ?*c.glp_prob, j: c_int) f64 {
+            return c.glp_get_obj_coef(prob, j);
+        }
+        
+        /// Get column kind (continuous, integer, or binary)
+        pub fn getColumnKind(prob: ?*c.glp_prob, j: c_int) c_int {
+            return c.glp_get_col_kind(prob, j);
+        }
+        
+        /// Get column of the constraint matrix
+        /// Returns the number of non-zero elements
+        /// If ind and val are null, just returns the count
+        pub fn getMatrixCol(prob: ?*c.glp_prob, j: c_int, ind: ?[*]c_int, val: ?[*]f64) c_int {
+            return c.glp_get_mat_col(prob, j, ind, val);
+        }
     
     // └──────────────────────────────────────────────────────────────────────────────┘
     

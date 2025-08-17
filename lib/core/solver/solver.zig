@@ -1,11 +1,16 @@
 // solver.zig — Solver interfaces and implementations for GLPK optimization
 //
-// repo   : https://github.com/emoessner/zig-glpk
-// docs   : https://github.com/emoessner/zig-glpk/blob/main/lib/core/solver
-// author : https://github.com/emoessner
+// repo   : https://github.com/scoomboot/zig-glpk
+// docs   : https://scoomboot.github.io/zig-glpk/lib/core/solver
+// author : https://github.com/scoomboot
 //
-// This module provides high-level solver interfaces for linear programming (LP)
-// and mixed-integer programming (MIP) problems using GLPK as the backend.
+// Vibe coded by Scoom.
+
+// ╔══════════════════════════════════════ PACK ══════════════════════════════════════╗
+
+    const std = @import("std");
+
+// ╚══════════════════════════════════════════════════════════════════════════════════════╝
 
 // ╔══════════════════════════════════════ CORE ══════════════════════════════════════╗
 
@@ -21,4 +26,14 @@
         return 100;
     }
 
-// ╚══════════════════════════════════════════════════════════════════════════════════╝
+// ╚══════════════════════════════════════════════════════════════════════════════════════╝
+
+// ╔══════════════════════════════════════ TEST ══════════════════════════════════════╗
+
+    const testing = std.testing;
+    
+    test "unit: solve: returns expected value" {
+        try testing.expectEqual(@as(i32, 100), solve());
+    }
+
+// ╚══════════════════════════════════════════════════════════════════════════════════════╝

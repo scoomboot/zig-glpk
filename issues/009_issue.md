@@ -55,11 +55,43 @@ pub fn loadMatrixCOO(self: *Problem, rows: []const usize, cols: []const usize, v
 /// Load matrix incrementally (useful for building problems programmatically)
 pub fn setMatrixEntry(self: *Problem, row: usize, col: usize, value: f64) !void {
     // Validate indices
-    if (row == 0 or row > self.getRowCount()) return error.InvalidRowIndex;
-    if (col == 0 or col > self.getColumnCount()) return error.InvalidColumnIndex;
+    if (row >= self.getRowCount()) return error.InvalidRowIndex;
+    if (col >= self.getColumnCount()) return error.InvalidColumnIndex;
     
-    // Set single matrix element
-    glpk.c.glp_set_aij(self.ptr, @intCast(row), @intCast(col), value);
+    // Note: GLPK 5.0 doesn't have glp_set_aij
+    // Need to get current row, modify it, and set it back
+    const row_idx = @intCast(c_int, row + 1); // Convert to 1-based
+    
+    // Get current row coefficients
+    var current_row = try self.getRowCoefficients(row);
+    defer current_row.deinit();
+    
+    // Update or add the coefficient
+    var found = false;
+    for (current_row.indices, current_row.values) |idx, *val| {
+        if (idx == col) {
+            val.* = value;
+            found = true;
+            break;
+        }
+    }
+    
+    if (!found and value != 0.0) {
+        // Need to add new entry - rebuild arrays
+        var new_indices = try self.allocator.alloc(usize, current_row.indices.len + 1);
+        var new_values = try self.allocator.alloc(f64, current_row.values.len + 1);
+        defer self.allocator.free(new_indices);
+        defer self.allocator.free(new_values);
+        
+        @memcpy(new_indices[0..current_row.indices.len], current_row.indices);
+        @memcpy(new_values[0..current_row.values.len], current_row.values);
+        new_indices[current_row.indices.len] = col;
+        new_values[current_row.values.len] = value;
+        
+        try self.setRowCoefficients(row, new_indices, new_values);
+    } else if (found) {
+        try self.setRowCoefficients(row, current_row.indices, current_row.values);
+    }
 }
 
 /// Clear all matrix entries (keep rows and columns)
@@ -151,7 +183,31 @@ pub fn getMatrix(self: *const Problem, allocator: std.mem.Allocator) !types.Spar
 
 /// Get a specific matrix entry
 pub fn getMatrixEntry(self: *const Problem, row: usize, col: usize) f64 {
-    return glpk.c.glp_get_aij(self.ptr, @intCast(row), @intCast(col));
+    // Note: GLPK 5.0 doesn't have glp_get_aij
+    // Need to use glp_get_mat_row and search for the column
+    const row_idx = @intCast(c_int, row + 1); // Convert to 1-based
+    
+    // First get the number of non-zeros in this row
+    const nnz = glpk.c.glp_get_mat_row(self.ptr, row_idx, null, null);
+    if (nnz == 0) return 0.0;
+    
+    // Allocate arrays to get row data
+    var indices = try self.allocator.alloc(c_int, @intCast(nnz + 1));
+    defer self.allocator.free(indices);
+    var values = try self.allocator.alloc(f64, @intCast(nnz + 1));
+    defer self.allocator.free(values);
+    
+    _ = glpk.c.glp_get_mat_row(self.ptr, row_idx, indices.ptr, values.ptr);
+    
+    // Search for the column
+    const col_idx = @intCast(c_int, col + 1); // Convert to 1-based
+    for (1..nnz+1) |i| {
+        if (indices[i] == col_idx) {
+            return values[i];
+        }
+    }
+    
+    return 0.0; // Not found means zero
 }
 ```
 
@@ -189,6 +245,10 @@ pub const MatrixStats = struct {
 - Loading a new matrix replaces the existing one entirely
 - Consider memory efficiency for large matrices
 - GLPK stores the matrix in compressed format internally
+- **IMPORTANT**: GLPK 5.0 does not provide `glp_get_aij` or `glp_set_aij` functions
+  - Use `glp_get_mat_row` or `glp_get_mat_col` to retrieve specific entries
+  - Use `glp_set_mat_row` or `glp_set_mat_col` for individual updates
+  - Alternatively, rebuild the entire matrix with `glp_load_matrix`
 
 ## Testing Requirements
 - Test loading small and large sparse matrices
