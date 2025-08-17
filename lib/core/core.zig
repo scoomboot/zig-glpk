@@ -1,21 +1,42 @@
+// core.zig — Core module exports for zig-glpk
+//
+// repo   : https://github.com/scoomboot/zig-glpk
+// docs   : https://scoomboot.github.io/zig-glpk/lib/core
+// author : https://github.com/scoomboot
+//
+// Vibe coded by Scoom.
+
 // ╔══════════════════════════════════════ PACK ══════════════════════════════════════╗
 
-pub const utils = .{
-    .problem = @import("./utils/problem/problem.zig"),
-    .solver = @import("./utils/solver/solver.zig"),
-    .types = @import("./utils/types/types.zig"),
-};
+    const std = @import("std");
+
+// ╚══════════════════════════════════════════════════════════════════════════════════════╝
+
+// ╔══════════════════════════════════════ CORE ══════════════════════════════════════╗
+
+    // ┌──────────────────────────── Module Exports ────────────────────────────┐
+    
+        /// Problem definition and management
+        pub const problem = @import("./problem/problem.zig");
+        
+        /// Solver interfaces and implementations
+        pub const solver = @import("./solver/solver.zig");
+        
+        /// Type definitions and conversions
+        pub const types = @import("./types/types.zig");
+    
+    // └──────────────────────────────────────────────────────────────────────────────┘
 
 // ╚══════════════════════════════════════════════════════════════════════════════════╝
 
 // ╔══════════════════════════════════════ TEST ══════════════════════════════════════╗
 
-test {
-    // utils
-    _ = @import("./utils/problem/problem.test.zig");
-    _ = @import("./utils/solver/solver.test.zig");
-    _ = @import("./utils/types/types.zig");  // Tests are inline in the main file
-    _ = @import("./utils/types/types.test.zig");  // Comprehensive integration and edge case tests
-}
+    test {
+        // Core modules
+        _ = @import("./problem/problem.test.zig");
+        _ = @import("./solver/solver.test.zig");
+        _ = @import("./types/types.zig");  // Tests are inline in the main file
+        _ = @import("./types/types.test.zig");  // Comprehensive integration and edge case tests
+    }
 
 // ╚══════════════════════════════════════════════════════════════════════════════════╝

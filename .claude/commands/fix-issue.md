@@ -1,2 +1,2 @@
-echo "Create a resolution plan for issue #$ARGUMENTS, found in /home/fisty/code/zig-glpk/issues. Follow all referenced documentation. Assign Zig code tasks to @zig-systems-expert and test development to @zig-test-engineer. Conduct a full audit to confirm no steps were missed. Conclude by summarizing the solution within the issue. ultrathink" >
+echo "Create a resolution plan for issue #$ARGUMENTS, found in /home/emoessner/code/zig-glpk/issues. Follow all referenced documentation. Assign Zig code tasks to @zig-systems-expert and test development to @zig-test-engineer. Conclude by summarizing the solution within the issue. ultrathink" >
 .claude/commands/fix-issue.md

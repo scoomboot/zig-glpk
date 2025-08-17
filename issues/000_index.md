@@ -8,13 +8,17 @@
 - ✅ [#003](003_issue.md): Configure build.zig for GLPK linking → [#001](001_issue.md), [#002](002_issue.md)
 - ✅ [#028](028_issue.md): Fix critical cross-platform build configuration → [#003](003_issue.md)
 
+### Critical Fixes (Immediate)
+- ✅ [#029](029_issue.md): Restructure module directory to comply with MCS rules → [#006](006_issue.md)
+- 🟡 [#030](030_issue.md): Fix GLPK array pointer handling in setMatrixRow → [#004](004_issue.md), [#006](006_issue.md)
+
 ### Phase 2: Core Types & Problem Management (Days 3-5)
 - ✅ [#004](004_issue.md): Implement C bindings layer for GLPK → [#002](002_issue.md), [#003](003_issue.md)
 - ✅ [#005](005_issue.md): Define Zig-friendly type definitions → [#004](004_issue.md)
-- 🔴 [#006](006_issue.md): Implement Problem struct with basic management → [#004](004_issue.md), [#005](005_issue.md)
-- 🟡 [#007](007_issue.md): Implement row (constraint) management methods → [#006](006_issue.md)
-- 🟡 [#008](008_issue.md): Implement column (variable) management methods → [#006](006_issue.md)
-- 🟡 [#009](009_issue.md): Implement sparse matrix loading → [#006](006_issue.md), [#007](007_issue.md), [#008](008_issue.md)
+- ✅ [#006](006_issue.md): Implement Problem struct with basic management → [#004](004_issue.md), [#005](005_issue.md)
+- 🟡 [#007](007_issue.md): Implement row (constraint) management methods → [#006](006_issue.md), [#029](029_issue.md)
+- 🟡 [#008](008_issue.md): Implement column (variable) management methods → [#006](006_issue.md), [#029](029_issue.md)
+- 🟡 [#009](009_issue.md): Implement sparse matrix loading → [#006](006_issue.md), [#007](007_issue.md), [#008](008_issue.md), [#030](030_issue.md)
 
 ### Phase 3: LP Solver Interface (Days 6-8)
 - 🔴 [#010](010_issue.md): Define SimplexOptions configuration structure → [#005](005_issue.md)

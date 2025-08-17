@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/home/fisty/code/zig-glpk/.claude/scripts/track-edits.sh add"
+            "command": "/home/emoessner/code/zig-glpk/.claude/scripts/track-edits.sh add"
           }
         ]
       }
@@ -16,7 +16,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/home/fisty/code/zig-glpk/.claude/scripts/session-style-check.sh"
+            "command": "/home/emoessner/code/zig-glpk/.claude/scripts/session-style-check.sh"
           }
         ]
       }

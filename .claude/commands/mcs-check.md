@@ -30,11 +30,11 @@ Based on the arguments provided:
 !if [ "$ARGUMENTS" = "--session" ] || [ "$ARGUMENTS" = "-s" ] || [ -z "$ARGUMENTS" ]; then
     # Check session edited files
     echo "Checking files edited in current session..."
-    /home/fisty/code/zig-glpk/.claude/scripts/track-edits.sh list
+    /home/emoessner/code/zig-glpk/.claude/scripts/track-edits.sh list
 elif [ "$ARGUMENTS" = "--all" ] || [ "$ARGUMENTS" = "-a" ]; then
     # Check all .zig files
     echo "Checking all .zig files in project..."
-    find /home/fisty/code/zig-glpk -name "*.zig" -type f | grep -v ".zig-cache" | head -20
+    find /home/emoessner/code/zig-glpk -name "*.zig" -type f | grep -v ".zig-cache" | head -20
 else
     # Check specific files
     echo "Checking specified files: $ARGUMENTS"

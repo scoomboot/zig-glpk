@@ -9,7 +9,7 @@
 // ╔══════════════════════════════════════ PACK ══════════════════════════════════════╗
 
     const std = @import("std");
-    const glpk = @import("../../../c/utils/glpk/glpk.zig");
+    const glpk = @import("../../c/utils/glpk/glpk.zig");
 
 // ╚══════════════════════════════════════════════════════════════════════════════════════╝
 
@@ -23,6 +23,9 @@
             maximize,
             
             /// Convert to GLPK constant
+            ///
+            /// __Return__
+            /// - The corresponding GLPK constant value
             pub fn toGLPK(self: OptimizationDirection) c_int {
                 return switch (self) {
                     .minimize => glpk.GLP_MIN,
@@ -31,6 +34,12 @@
             }
             
             /// Convert from GLPK constant
+            ///
+            /// __Parameters__
+            /// - `value`: GLPK constant value to convert
+            ///
+            /// __Return__
+            /// - The corresponding OptimizationDirection or InvalidOptimizationDirection error
             pub fn fromGLPK(value: c_int) !OptimizationDirection {
                 return switch (value) {
                     glpk.GLP_MIN => .minimize,
@@ -53,6 +62,9 @@
             fixed,      // x = lb = ub
             
             /// Convert to GLPK constant
+            ///
+            /// __Return__
+            /// - The corresponding GLPK constant value
             pub fn toGLPK(self: BoundType) c_int {
                 return switch (self) {
                     .free => glpk.GLP_FR,
@@ -64,6 +76,12 @@
             }
             
             /// Convert from GLPK constant
+            ///
+            /// __Parameters__
+            /// - `value`: GLPK constant value to convert
+            ///
+            /// __Return__
+            /// - The corresponding BoundType or InvalidBoundType error
             pub fn fromGLPK(value: c_int) !BoundType {
                 return switch (value) {
                     glpk.GLP_FR => .free,
@@ -87,6 +105,9 @@
             binary,      // Binary variable (0 or 1)
             
             /// Convert to GLPK constant
+            ///
+            /// __Return__
+            /// - The corresponding GLPK constant value
             pub fn toGLPK(self: VariableKind) c_int {
                 return switch (self) {
                     .continuous => glpk.GLP_CV,
@@ -96,6 +117,12 @@
             }
             
             /// Convert from GLPK constant
+            ///
+            /// __Parameters__
+            /// - `value`: GLPK constant value to convert
+            ///
+            /// __Return__
+            /// - The corresponding VariableKind or InvalidVariableKind error
             pub fn fromGLPK(value: c_int) !VariableKind {
                 return switch (value) {
                     glpk.GLP_CV => .continuous,
@@ -120,6 +147,9 @@
             undefined,   // Solution undefined
             
             /// Convert to GLPK constant
+            ///
+            /// __Return__
+            /// - The corresponding GLPK constant value
             pub fn toGLPK(self: SolutionStatus) c_int {
                 return switch (self) {
                     .optimal => glpk.GLP_OPT,
@@ -132,6 +162,12 @@
             }
             
             /// Convert from GLPK constant
+            ///
+            /// __Parameters__
+            /// - `value`: GLPK constant value to convert
+            ///
+            /// __Return__
+            /// - The corresponding SolutionStatus or InvalidSolutionStatus error
             pub fn fromGLPK(value: c_int) !SolutionStatus {
                 return switch (value) {
                     glpk.GLP_OPT => .optimal,
@@ -145,6 +181,9 @@
             }
             
             /// Check if the solution represents a successful state
+            ///
+            /// __Return__
+            /// - true if the status represents optimal or feasible solution
             pub fn isSuccess(self: SolutionStatus) bool {
                 return switch (self) {
                     .optimal, .feasible => true,
@@ -153,6 +192,9 @@
             }
             
             /// Check if the solution represents an error state
+            ///
+            /// __Return__
+            /// - true if the status represents an error condition
             pub fn isError(self: SolutionStatus) bool {
                 return switch (self) {
                     .optimal, .feasible => false,
@@ -172,6 +214,9 @@
             dual_primal, // Dual then primal
             
             /// Convert to GLPK constant
+            ///
+            /// __Return__
+            /// - The corresponding GLPK constant value
             pub fn toGLPK(self: SimplexMethod) c_int {
                 return switch (self) {
                     .primal => glpk.GLP_PRIMAL,
@@ -181,6 +226,12 @@
             }
             
             /// Convert from GLPK constant
+            ///
+            /// __Parameters__
+            /// - `value`: GLPK constant value to convert
+            ///
+            /// __Return__
+            /// - The corresponding SimplexMethod or InvalidSimplexMethod error
             pub fn fromGLPK(value: c_int) !SimplexMethod {
                 return switch (value) {
                     glpk.GLP_PRIMAL => .primal,
@@ -201,6 +252,9 @@
             steepest_edge,   // Projected steepest edge
             
             /// Convert to GLPK constant
+            ///
+            /// __Return__
+            /// - The corresponding GLPK constant value
             pub fn toGLPK(self: PricingRule) c_int {
                 return switch (self) {
                     .standard => glpk.GLP_PT_STD,
@@ -209,6 +263,12 @@
             }
             
             /// Convert from GLPK constant
+            ///
+            /// __Parameters__
+            /// - `value`: GLPK constant value to convert
+            ///
+            /// __Return__
+            /// - The corresponding PricingRule or InvalidPricingRule error
             pub fn fromGLPK(value: c_int) !PricingRule {
                 return switch (value) {
                     glpk.GLP_PT_STD => .standard,
@@ -228,6 +288,9 @@
             harris,    // Harris' two-pass ratio test
             
             /// Convert to GLPK constant
+            ///
+            /// __Return__
+            /// - The corresponding GLPK constant value
             pub fn toGLPK(self: RatioTest) c_int {
                 return switch (self) {
                     .standard => glpk.GLP_RT_STD,
@@ -236,6 +299,12 @@
             }
             
             /// Convert from GLPK constant
+            ///
+            /// __Parameters__
+            /// - `value`: GLPK constant value to convert
+            ///
+            /// __Return__
+            /// - The corresponding RatioTest or InvalidRatioTest error
             pub fn fromGLPK(value: c_int) !RatioTest {
                 return switch (value) {
                     glpk.GLP_RT_STD => .standard,
@@ -257,6 +326,9 @@
             driebeek_tomlin,   // Heuristic by Driebeck and Tomlin
             
             /// Convert to GLPK constant
+            ///
+            /// __Return__
+            /// - The corresponding GLPK constant value
             pub fn toGLPK(self: BranchingRule) c_int {
                 return switch (self) {
                     .first_fractional => glpk.GLP_BR_FFV,
@@ -267,6 +339,12 @@
             }
             
             /// Convert from GLPK constant
+            ///
+            /// __Parameters__
+            /// - `value`: GLPK constant value to convert
+            ///
+            /// __Return__
+            /// - The corresponding BranchingRule or InvalidBranchingRule error
             pub fn fromGLPK(value: c_int) !BranchingRule {
                 return switch (value) {
                     glpk.GLP_BR_FFV => .first_fractional,
@@ -290,6 +368,9 @@
             best_projection,  // Best projection heuristic
             
             /// Convert to GLPK constant
+            ///
+            /// __Return__
+            /// - The corresponding GLPK constant value
             pub fn toGLPK(self: BacktrackingRule) c_int {
                 return switch (self) {
                     .depth_first => glpk.GLP_BT_DFS,
@@ -300,6 +381,12 @@
             }
             
             /// Convert from GLPK constant
+            ///
+            /// __Parameters__
+            /// - `value`: GLPK constant value to convert
+            ///
+            /// __Return__
+            /// - The corresponding BacktrackingRule or InvalidBacktrackingRule error
             pub fn fromGLPK(value: c_int) !BacktrackingRule {
                 return switch (value) {
                     glpk.GLP_BT_DFS => .depth_first,
@@ -325,6 +412,9 @@
             values: []const f64,
             
             /// Validate that the sparse matrix is well-formed
+            ///
+            /// __Return__
+            /// - void on success, or error if validation fails
             pub fn validate(self: SparseMatrix) !void {
                 // Check that all arrays have the same length
                 if (self.rows.len != self.cols.len or self.rows.len != self.values.len) {
@@ -353,6 +443,14 @@
             }
             
             /// Convert a dense matrix to sparse format
+            ///
+            /// __Parameters__
+            /// - `allocator`: Memory allocator for sparse arrays
+            /// - `dense`: Dense matrix as 2D array of f64 values
+            /// - `tolerance`: Absolute value threshold for considering values as non-zero
+            ///
+            /// __Return__
+            /// - A new SparseMatrix or allocation error
             pub fn fromDense(allocator: std.mem.Allocator, dense: []const []const f64, tolerance: f64) !SparseMatrix {
                 var row_list = std.ArrayList(i32).init(allocator);
                 defer row_list.deinit();
@@ -379,6 +477,9 @@
             }
             
             /// Free allocated memory
+            ///
+            /// __Parameters__
+            /// - `allocator`: The allocator used to create the sparse arrays
             pub fn deinit(self: *SparseMatrix, allocator: std.mem.Allocator) void {
                 allocator.free(self.rows);
                 allocator.free(self.cols);

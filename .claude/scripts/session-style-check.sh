@@ -5,7 +5,7 @@
 # This script is triggered by the Stop hook to check all files
 # edited during the Claude Code session for MCS compliance.
 
-TRACK_SCRIPT="/home/fisty/code/zig-glpk/.claude/scripts/track-edits.sh"
+TRACK_SCRIPT="/home/emoessner/code/zig-glpk/.claude/scripts/track-edits.sh"
 MCS_REPORT="/tmp/claude_mcs_session_report.txt"
 
 # Colors for output
